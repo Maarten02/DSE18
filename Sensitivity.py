@@ -1,5 +1,5 @@
 import numpy as np
-
+import datetime
 data = dict()
 data['operations'] = {"Safety":np.array([4,6,4,3,4,3]),"Fuel storage":np.array([3,1,5,6,2,1]),"Refuelling":np.array([2,5,6,3,1,2]),"Maintenance":np.array([3,6,5,4,3,5]),"Weights":np.array([0.25,0.4,0.2,0.15]),"value":0.20}
 data['performance'] = {"Weight":np.array([7,1,5,6,4,1]),"Drag":np.array([7,1,4,6,5,1]),"Speed":np.array([7,1,7,7,6,1]),"Range":np.array([7,1,6,5,4,1]),"Weights":np.array([0.25,0.25,0.25,0.25]),"value":0.30}
