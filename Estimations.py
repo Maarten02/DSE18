@@ -9,7 +9,7 @@ class Aircraft:
                  length_fus,height_fus,width_fus,diameter_fus,surface_wing
                  ,w_design,t_c,lamda,w_mtow,w_oew,R,E,V,AR,
                  sweep_angle,surface_controlv,surface_controlh,sweep_angle_horizontal,sweep_angle_vertical,
-                 m_v,m_h,taper_ratio,taper_ratioh,taper_ratiov,w_payload,w_crew,f_res,w_empty):
+                 m_v,m_h,taper_ratio,taper_ratioh,taper_ratiov,w_payload,w_crew,f_res,w_empty,ult_factor,m_landingdes,length_mlg,length_nlg):
         self.x_wing = x_wing
         self.x_cg = x_cg
         self.m_wing = m_wing
@@ -55,6 +55,10 @@ class Aircraft:
         self.w_fuel = 0
         self.w_empty = w_empty
         self.iter = 0
+        self.ult_factor = ult_factor
+        self.m_landingdes = m_landingdes
+        self.length_mlg = length_mlg
+        self.length_nlg = length_nlg
 
 
     def class1(self):
@@ -102,6 +106,9 @@ class Aircraft:
         ###### Engine mass ######
 
         ###### Landing Gear Group mass#####
+
+        self.m_mlg = 0.095 * (self.ult_factor * self.m_landingdes) ** 0.768 * (self.length_mlg / 12) ** 0.409
+        self.m_nlg = 0.125 * (self.ult_factor * self.m_landingdes) ** 0.566 * (self.length_nlg / 12) ** 0.845
 
         ###### Fuel System mass #######
 
