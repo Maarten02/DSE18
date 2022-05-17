@@ -45,8 +45,8 @@ class Aircraft:
         self.taper_ratio = taper_ratio
         self.taper_ratioh = taper_ratioh
         self.taper_ratiov = taper_ratiov
-        self.MTOWstat = np.multiply([14330, 16424, 46500, 22900, 25700, 12500, 15245, 11300, 12500, 8200, 9850, 14500, 36000, 8500, 45000, 34720, 5732, 7054, 28660, 44000, 41000, 21165, 26000, 9000],0.453592)
-        self.OEWstat = np.multiply([7716, 9072, 26560, 14175, 16075, 7750, 8500, 6494, 7538, 4915, 5682, 8387, 23693, 4613, 25525, 20580, 3245, 4299, 16094, 27000, 24635, 11945, 15510,  5018],0.453592)
+        self.MTOWstat = np.multiply([14330, 16424, 46500, 22900, 25700, 12500, 15245, 11300, 12500, 8200, 9850, 14500, 36000, 8500, 45000, 34720, 5732, 7054, 28660, 44000, 41000, 21165, 26000, 9000],1)
+        self.OEWstat = np.multiply([7716, 9072, 26560, 14175, 16075, 7750, 8500, 6494, 7538, 4915, 5682, 8387, 23693, 4613, 25525, 20580, 3245, 4299, 16094, 27000, 24635, 11945, 15510,  5018],1)
         self.a = linregress(self.MTOWstat, self.OEWstat).slope
         self.b = linregress(self.MTOWstat, self.OEWstat).intercept
         self.w_paylaod = w_payload
@@ -55,10 +55,26 @@ class Aircraft:
         self.w_fuel = 0
         self.w_empty = w_empty
         self.iter = 0
+        self.CL_alpha = 0
+        self.CLh_alpha = 0
+        self.CLw_alpha = 0
         self.ult_factor = ult_factor
         self.m_landingdes = m_landingdes
         self.length_mlg = length_mlg
         self.length_nlg = length_nlg
+        self.w_engine = 0
+        self.w_fuelsystem = 0
+        self.b_w = 0
+        self.w_avionics = 1000
+        self.Mach = self.V/340
+        self.w_installedEngine = 0
+        self.w_flightcontrols=0
+        self.w_hydraulics = 0
+        self.w_electrical = 0
+        self.w_icing = 0
+        self.n_passengers = 6
+        self.w_furnishing = 0
+        self.shaft_power = 0
 
 
     def class1(self):
@@ -67,17 +83,25 @@ class Aircraft:
         loiter_fraction = np.exp(self.E/self.efficiency/(self.V*9.81*self.c_p))*self.L_D_loiter
         f2 = 1/loiter_fraction
         fuel_coeff = 1-(f1*f2*self.fractions)
-        self.w_mtow = (self.w_paylaod+self.b+self.w_crew)/(1-self.a-fuel_coeff*(1-self.f_res))
         if self.iter>=1:
             self.w_oew = self.w_oew
-        self.w_oew = self.w_crew +self.w_empty
-        self.w_fuel = fuel_coeff* (1+self.f_res)*self.w_mtow
+            self.w_mtow = (self.w_oew - self.b)/self.a
+            self.w_fuel = fuel_coeff* (1+self.f_res)*self.w_mtow
+        else:
+            self.w_oew = self.w_crew +self.w_empty
+            self.w_fuel = fuel_coeff* (1+self.f_res)*self.w_mtow
+            self.w_mtow = (self.w_paylaod + self.b + self.w_crew) / (1 - self.a - fuel_coeff * (1 - self.f_res))
         pass
 
 
     def class2(self):
-        # self.class1()
+        self.w_design = self.w_oew
         Ht_Hv = 1
+        ###### Link for mass estimations used #######
+
+        ###### https://www.ijemr.net/DOC/AircraftMassEstimationMethods(170-178).pdf ######
+        ###### https://brightspace.tudelft.nl/d2l/le/content/419892/viewContent/2368629/View ######  <--- all raymer formulas
+
         ###### Fuselage mass ######
 
         self.m_fuselage = (12.7*(self.length_fus*self.diameter_fus)**(1.2982)*
@@ -105,12 +129,58 @@ class Aircraft:
 
         ###### Engine mass ######
 
+        self.w_engine = 0   #insert costum formula here
+        # Reference Formula from Raymer:
+
+        ###### Installed Engine mass#######
+
+        self.w_installedEngine = 2.575 * 2* self.w_engine**0.922
+
         ###### Landing Gear Group mass#####
 
         self.m_mlg = 0.095 * (self.ult_factor * self.m_landingdes) ** 0.768 * (self.length_mlg / 12) ** 0.409
         self.m_nlg = 0.125 * (self.ult_factor * self.m_landingdes) ** 0.566 * (self.length_nlg / 12) ** 0.845
 
         ###### Fuel System mass #######
+
+        self.w_fuelsystem = self.shaft_power / 2  #COMPLETE FORMULA
+        # Reference Formula from Raymer :
+
+        ###### Flight controls mass ######
+
+        self.w_flightcontrols = 0.053 * self.length_fus**(1.536)*self.b_w*(0.371)*(1.5*self.w_design*10e-4)**0.8
+
+        ###### hydraulics mass ######
+
+        self.w_hydraulics = 0.001*self.w_design
+
+        ###### Electrical system mass ######
+
+        self.w_electrical = 12.57*(self.w_fuelsystem+self.w_avionics)**0.51
+
+        ###### Avionics mass ######
+
+        self.w_avionics = self.w_avionics
+
+        ###### AC and Icing mass #######
+
+        self.w_icing = 0.265* self.w_design**0.52 * self.n_passengers**0.68 * self.w_avionics **0.07* self.Mach*0.08
+
+        ###### Furnishing mass #######
+
+        self.w_furnishing = 0.0582 * self.w_design - 65
+
+        ###### updating OEW ########
+
+        self.w_oew = (self.m_fuselage + self.m_h +self.m_v +self.m_wing +self.w_furnishing +
+                     self.w_icing+self.w_electrical+self.w_avionics+self.w_fuelsystem
+                     +self.w_flightcontrols + self.w_installedEngine +self.w_hydraulics)
+
+        ###### updating MTOW ########
+
+        self.w_mtow = self.w_oew +self.w_paylaod +self.w_fuel
+
+
 
     def classiter(self):
         self.class1()
@@ -122,7 +192,8 @@ class Aircraft:
         else:
             pass
 
-
     def sizing(self):
+
+
 
         pass
