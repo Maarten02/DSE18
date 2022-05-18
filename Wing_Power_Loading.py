@@ -47,7 +47,6 @@ ISA_temperature = 288.15
 gravity =9.81
 
 class PowerLoading:
-
     def __init__(self, MTOW):
         self.stall_speed = 41.7 #[m/s]
         self.CLmax_clean = 1.5
@@ -70,9 +69,9 @@ class PowerLoading:
         self.pressure = 101325
         self.temperature = 288.15
         self.c = 5
-        self.CL_CD_TO = 0
-        self.CL_CD_cruise = 0
-        self.CL_CD_L = 0
+        self.CL_CD_TO = self.CD0_TO + (self.CLmax_TO**2/(self.Oswald_TO*self.AR*np.pi))
+        self.CL_CD_cruise = self.CD0_clean + (self.CLmax_clean**2/(self.Oswald_clean*self.AR*np.pi))
+        self.CL_CD_L = self.CD0_land + (self.CLmax_land**2/(self.Oswald_land*self.AR*np.pi))
         self.c_V = 0.083
 
 
@@ -106,18 +105,21 @@ class PowerLoading:
         return y
 
     def plot_power(self, landing, cruise):
-        x_list = np.linspace(0.1,5000,100)
+        x_list = np.linspace(1,5000,100)
         plt.figure(1)
         plt.grid()
         if landing:
             plt.vlines(self.landing(),0,0.4)
         if cruise:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
+            plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="climb gradient constraint")
+            plt.plot(x_list, self.climbrate(x_list), linestyle="solid", color="purple", label="climb rate constraint")
+
         plt.ylim((0,0.4))
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
         plt.show()
         plt.close(1)
 
-Aircraft  = PowerLoading(3000)
+Aircraft  = PowerLoading(3500)
 Aircraft.plot_power(landing= True,cruise = True)
