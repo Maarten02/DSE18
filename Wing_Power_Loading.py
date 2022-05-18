@@ -1,4 +1,4 @@
-
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
 ### Minimum speed, take-off distance, landing distance, climb(rate and gradient), maneuvering(turn rate/radius), max speed, max alt
@@ -76,8 +76,8 @@ from matplotlib.widgets import Slider, Button
  maximum speed  ------>
  maximum altitude ----->   for now 3048m
 
-  """
-
+"""
+ISA_density = 1.225 #[kg/m^3]
 class PowerLoading:
 
     def __init__(self, MTOW):
@@ -92,7 +92,13 @@ class PowerLoading:
         self.CD0_clean = 0.0280
         self.CD0_TO = 0.0380
         self.CD0_land = 0.0730
+        self.landing_fraction = 0.9
+        self.ground_distance = 1500 #[m]
 
-    def dragpolar(self):
-        pass
+    # def dragpolar(self):
+    #     pass
+
+    def landing_line(self):
+        C_L = np.arange(0, self.CLmax_land + 0.1, 0.1)
+        loading = [(CL * ISA_density * self.stall_speed ** 2) / (2 * self.landing_fraction)]
 
