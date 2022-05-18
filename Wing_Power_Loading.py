@@ -76,9 +76,9 @@ class PowerLoading:
         self.c_V = 0.083
 
 
-    def ISA(self):
-        pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
-        temperature = ISA_temperature + Lambda * self.cruise_altitude
+    def ISA(self,altitude):
+        pressure = ISA_pressure * (1. + (Lambda * (altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
+        temperature = ISA_temperature + Lambda * altitude
         rho = pressure /(temperature*R)
         return pressure,temperature,rho
         
@@ -89,7 +89,7 @@ class PowerLoading:
 
 
     def cruise(self,x):
-        pressure,temperature,rho = self.ISA()
+        pressure,temperature,rho = self.ISA(self.cruise_altitude)
         y = (self.n_p * (rho/ISA_density) ** (0.75) * ((self.CD0_clean * 0.5 * rho
                                                       * self.cruise_speed ** 3) / (x) +
                                                      x / (np.pi * self.AR * self.Oswald_clean *
