@@ -73,6 +73,7 @@ class PowerLoading:
         self.CL_CD_cruise = self.CD0_clean + (self.CLmax_clean**2/(self.Oswald_clean*self.AR*np.pi))
         self.CL_CD_L = self.CD0_land + (self.CLmax_land**2/(self.Oswald_land*self.AR*np.pi))
         self.c_V = 0.083
+        self.runway_elevation = 2500
 
 
     def ISA(self,altitude):
@@ -85,6 +86,13 @@ class PowerLoading:
     def landing(self):
         x = (self.CLmax_land * ISA_density * (self.ground_distance / 0.5915)) / (2 * self.landing_fraction)
         return x
+
+    def takeoff(self, W_over_S):
+        sigma = self.ISA(self.runway_elevation)[2] / 1.225
+        CL_TO = self.CLmax_TO / (1.1 * 1.1)
+        TOP = 570
+        T_over_W = W_over_S / (sigma * CL_TO * TOP)
+        return T_over_W
 
 
     def cruise(self,x):
