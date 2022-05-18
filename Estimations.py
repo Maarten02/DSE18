@@ -10,13 +10,37 @@ class Aircraft:
                  ,w_design,t_c,lamda,w_mtow,w_oew,R,E,V,AR,
                  sweep_angle,surface_controlv,surface_controlh,sweep_angle_horizontal,sweep_angle_vertical,
                  m_v,m_h,taper_ratio,taper_ratioh,taper_ratiov,w_payload,w_crew,f_res,w_empty,ult_factor,m_landingdes,length_mlg,length_nlg):
+
+        ####### CG Positions ############
         self.x_wing = x_wing
         self.x_cg = x_cg
+
+        ######## Structure Masses ########
         self.m_wing = m_wing
         self.m_h = m_h
         self.m_v = m_v
         self.m_wing = m_wing
         self.m_fuselage= m_fuselage
+        self.w_design = w_design
+        self.w_crew = w_crew
+        self.f_res = f_res
+        self.w_empty = w_empty
+        self.w_installedEngine = 0
+        self.w_flightcontrols = 0
+        self.w_hydraulics = 0
+        self.w_electrical = 0
+        self.w_icing = 0
+        self.w_engine = 0
+        self.w_fuelsystem = 0
+        self.w_furnishing = 0
+        self.m_landingdes = m_landingdes
+        self.w_avionics = 1000
+
+        ########## Payload Masses ###########
+        self.w_fuel = 0
+        self.w_paylaod = w_payload
+
+        ######### Performance ###########
         self.L_D_cruise = L_D_cruise
         self.L_D_loiter = L_D_loiter
         self.c_p = c_p
@@ -27,15 +51,11 @@ class Aircraft:
         self.surface_wing = surface_wing
         self.surface_controlv = surface_controlv
         self.surface_controlh = surface_controlh
-        self.w_design = w_design
         self.t_c = t_c
         self.lamda = lamda
         self.w_mtow = w_mtow
         self.w_oew = w_oew
-        self.R = R
-        self.E = E
-        self.V = V
-        self.efficiency = 0.85
+
         self.fractions = 0.992 * 0.996 * 0.996 * 0.990 * 0.992 * 0.992
         self.AR=AR
         self.sweep_angle = sweep_angle
@@ -45,37 +65,19 @@ class Aircraft:
         self.taper_ratio = taper_ratio
         self.taper_ratioh = taper_ratioh
         self.taper_ratiov = taper_ratiov
+
+        ####### Class 1 Statistical Data ############
         self.MTOWstat = np.multiply([14330, 16424, 46500, 22900, 25700, 12500, 15245, 11300, 12500, 8200, 9850, 14500, 36000, 8500, 45000, 34720, 5732, 7054, 28660, 44000, 41000, 21165, 26000, 9000],1)
         self.OEWstat = np.multiply([7716, 9072, 26560, 14175, 16075, 7750, 8500, 6494, 7538, 4915, 5682, 8387, 23693, 4613, 25525, 20580, 3245, 4299, 16094, 27000, 24635, 11945, 15510,  5018],1)
         self.a = linregress(self.MTOWstat, self.OEWstat).slope
         self.b = linregress(self.MTOWstat, self.OEWstat).intercept
-        self.w_paylaod = w_payload
-        self.w_crew = w_crew
-        self.f_res= f_res
-        self.w_fuel = 0
-        self.w_empty = w_empty
         self.iter = 0
-        self.CL_alpha = 0
-        self.CLh_alpha = 0
-        self.CLw_alpha = 0
         self.ult_factor = ult_factor
-        self.m_landingdes = m_landingdes
         self.length_mlg = length_mlg
         self.length_nlg = length_nlg
-        self.w_engine = 0
-        self.w_fuelsystem = 0
         self.b_w = 0
-        self.w_avionics = 1000
-        self.Mach = self.V/340
-        self.w_installedEngine = 0
-        self.w_flightcontrols=0
-        self.w_hydraulics = 0
-        self.w_electrical = 0
-        self.w_icing = 0
         self.n_passengers = 6
-        self.w_furnishing = 0
         self.shaft_power = 0
-
 
     def class1(self):
         cruise_fraction = np.exp(self.R/self.efficiency/(9.81*self.c_p)*self.L_D_cruise)
