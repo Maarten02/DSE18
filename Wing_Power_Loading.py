@@ -105,17 +105,21 @@ class PowerLoading:
         y = self.n_p/(np.sqrt(x)*(self.c_V+self.CL_CD_TO)*np.sqrt(2/(ISA_density*(self.CLmax_TO-0.2))))
         return y
 
-    def plot_power(self, landing, cruise, x):
-        x_list = np.arange(50, x, 50)
+    def plot_power(self, landing, cruise):
+        x_list = np.linspace(0.1, 5000, 100)
         plt.figure(1)
         plt.grid()
 
         if landing:
-            plt.plot([self.landing()], [0.4], linestyle="solid", color="black", label="Landing constraint")
+            plt.vlines(self.landing(), 0, 12)
         if cruise:
-            plt.plot(x_list, [self.cruise(el) for el in x_list], linestyle="solid", color="blue", label="Cruise speed constraint")
-        
+            plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
+
+        plt.ylim((0, 1))
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
         plt.show()
         plt.close(1)
+
+loading = PowerLoading(5000)
+loading.plot_power(True, True)
