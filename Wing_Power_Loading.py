@@ -69,16 +69,23 @@ class PowerLoading:
         self.rho = 1.225
         self.pressure = 101325
         self.temperature = 288.15
+        self.c = 5
+        self.CL_CD_TO = 0
+        self.CL_CD_cruise = 0
+        self.CL_CD_L = 0
+        self.c_V = 0.083
 
 
     def ISA(self):
         self.pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
         self.temperature = ISA_temperature + Lambda * self.cruise_altitude
         self.rho = self.pressure /(self.temperature*R)
+        pass
         
 
     def landing(self):
         x = (self.CLmax_land * ISA_density * (self.ground_distance / 0.5915)) / (2 * self.landing_fraction)
+        return x
 
 
     def cruise(self,x):
@@ -87,6 +94,15 @@ class PowerLoading:
                                                       * self.cruise_speed ** 3) / (x) +
                                                      x / (np.pi * self.AR * self.Oswald_clean *
                                                           0.5 * self.rho * self.cruise_speed)))
+        return y
+
+    def climbrate(self,x):
+        y = (self.n_p / (self.c + np.sqrt(x)*np.sqrt(2/ISA_density)/
+                        (1.345*(self.AR*self.Oswald_TO)**(3/4)/(self.CD0_TO**(1/4)))))
+        return y
+
+    def climbgradient(self,x):
+        y = self.n_p/(np.sqrt(x)*(self.c_V+self.CL_CD_TO)*np.sqrt(2/(ISA_density*(self.CLmax_TO-0.2))))
         return y
 
     def plot_power(self, landing, cruise, x):
