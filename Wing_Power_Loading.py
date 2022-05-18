@@ -47,6 +47,7 @@ ISA_temperature = 288.15
 gravity =9.81
 
 class PowerLoading:
+
     def __init__(self, MTOW):
         self.stall_speed = 41.7 #[m/s]
         self.CLmax_clean = 1.5
@@ -69,23 +70,16 @@ class PowerLoading:
         self.pressure = 101325
         self.temperature = 288.15
 
-    # def dragpolar(self):
-    #     pass
-
-    def landing_line(self):
-        C_L = np.arange(0, self.CLmax_land + 0.1, 0.1)
-        loading = [(C_L * ISA_density * self.stall_speed ** 2) / (2 * self.landing_fraction)]
-
-
-    def dragpolar(self):
-
-        pass
 
     def ISA(self):
         self.pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
         self.temperature = ISA_temperature + Lambda * self.cruise_altitude
         self.rho = self.pressure /(self.temperature*R)
-        pass
+        
+
+    def landing(self):
+        x = (self.CLmax_land * ISA_density * (self.ground_distance / 0.5915)) / (2 * self.landing_fraction)
+
 
     def cruise(self,x):
         self.ISA()
