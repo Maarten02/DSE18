@@ -40,7 +40,7 @@ import numpy as np
   """
 
 ISA_density = 1.225 #[kg/m^3]
-Lambda = 100
+Lambda = -0.0065
 R =287
 ISA_pressure = 101325
 ISA_temperature = 288.15
@@ -77,10 +77,10 @@ class PowerLoading:
 
 
     def ISA(self):
-        self.pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
-        self.temperature = ISA_temperature + Lambda * self.cruise_altitude
-        self.rho = self.pressure /(self.temperature*R)
-        pass
+        pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
+        temperature = ISA_temperature + Lambda * self.cruise_altitude
+        rho = pressure /(temperature*R)
+        return pressure,temperature,rho
         
 
     def landing(self):
@@ -89,11 +89,11 @@ class PowerLoading:
 
 
     def cruise(self,x):
-        self.ISA()
-        y = (self.n_p * (self.rho/ISA_density) ** 0.75 * ((self.CD0_clean * 0.5 * self.rho
+        pressure,temperature,rho = self.ISA()
+        y = (self.n_p * (rho/ISA_density) ** (0.75) * ((self.CD0_clean * 0.5 * rho
                                                       * self.cruise_speed ** 3) / (x) +
                                                      x / (np.pi * self.AR * self.Oswald_clean *
-                                                          0.5 * self.rho * self.cruise_speed)))
+                                                          0.5 * rho * self.cruise_speed))**-1)
         return y
 
     def climbrate(self,x):
@@ -106,20 +106,18 @@ class PowerLoading:
         return y
 
     def plot_power(self, landing, cruise):
-        x_list = np.linspace(0.1, 5000, 100)
+        x_list = np.linspace(0.1,5000,100)
         plt.figure(1)
         plt.grid()
-
         if landing:
-            plt.vlines(self.landing(), 0, 12)
+            plt.vlines(self.landing(),0,0.4)
         if cruise:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
-
-        plt.ylim((0, 1))
+        plt.ylim((0,0.4))
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
         plt.show()
         plt.close(1)
 
-loading = PowerLoading(5000)
-loading.plot_power(True, True)
+Aircraft  = PowerLoading(3000)
+Aircraft.plot_power(landing= True,cruise = True)
