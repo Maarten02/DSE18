@@ -29,7 +29,7 @@ from matplotlib.widgets import Slider, Button
  Climb gradient performance
  ------------------------
  --> safety margin on lift coefficient
-
+import numpy as np
 
  Minimum speed   -----> 61kts
  Take off distance  ------> <1500m
@@ -78,8 +78,13 @@ from matplotlib.widgets import Slider, Button
 
 """
 ISA_density = 1.225 #[kg/m^3]
-class PowerLoading:
 
+
+
+
+
+
+class PowerLoading:
     def __init__(self, MTOW):
         self.stall_speed = 41.7 #[m/s]
         self.CLmax_clean = 1.5
@@ -101,4 +106,24 @@ class PowerLoading:
     def landing_line(self):
         C_L = np.arange(0, self.CLmax_land + 0.1, 0.1)
         loading = [(CL * ISA_density * self.stall_speed ** 2) / (2 * self.landing_fraction)]
+        self.n_p = 0.85
+        self.cruise_altitude = 3050
+        self.AR = 9
+        self.cruise_speed = 500*1000/(3600)
+        self.rho0 = 1.225
+        self.rho = 1.225
 
+    def dragpolar(self):
+
+        pass
+
+    def ISA(self):
+
+        pass
+
+    def cruise(self,x):
+     y = (self.n_p * (self.rho/self.rho0) ** 0.75 * ((self.CD0_clean * 0.5 * self.rho
+                                                      * self.cruise_speed ** 3) / (x) +
+                                                     x / (np.pi * self.AR * self.Oswald_clean *
+                                                          0.5 * self.rho * self.cruise_speed)))
+     return y
