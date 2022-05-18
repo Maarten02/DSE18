@@ -44,6 +44,17 @@ class Aircraft:
         self.L_D_cruise = L_D_cruise
         self.L_D_loiter = L_D_loiter
         self.c_p = c_p
+        self.R = R
+        self.E = E
+        self.V = V
+        self.efficiency = 0.85
+        self.CL_alpha = 0
+        self.CLh_alpha = 0
+        self.CLw_alpha = 0
+        self.Mach = self.V/340
+
+
+        ########## Geometrical parameters #############
         self.length_fus = length_fus
         self.height_fus = height_fus
         self.width_fus = width_fus
