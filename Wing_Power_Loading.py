@@ -40,6 +40,12 @@ import numpy as np
   """
 
 ISA_density = 1.225 #[kg/m^3]
+Lambda = 100
+R =287
+ISA_pressure = 101325
+ISA_temperature = 288.15
+gravity =9.81
+
 class PowerLoading:
     def __init__(self, MTOW):
         self.stall_speed = 41.7 #[m/s]
@@ -55,31 +61,36 @@ class PowerLoading:
         self.CD0_land = 0.0730
         self.landing_fraction = 0.9
         self.ground_distance = 1500 #[m]
+        self.n_p = 0.85
+        self.cruise_altitude = 3050
+        self.AR = 9
+        self.cruise_speed = 500*1000/(3600)
+        self.rho = 1.225
+        self.pressure = 101325
+        self.temperature = 288.15
 
     # def dragpolar(self):
     #     pass
 
     def landing_line(self):
         C_L = np.arange(0, self.CLmax_land + 0.1, 0.1)
-        loading = [(CL * ISA_density * self.stall_speed ** 2) / (2 * self.landing_fraction)]
-        self.n_p = 0.85
-        self.cruise_altitude = 3050
-        self.AR = 9
-        self.cruise_speed = 500*1000/(3600)
-        self.rho0 = 1.225
-        self.rho = 1.225
+        loading = [(C_L * ISA_density * self.stall_speed ** 2) / (2 * self.landing_fraction)]
+
 
     def dragpolar(self):
 
         pass
 
     def ISA(self):
-
+        self.pressure = ISA_pressure * (1. + (Lambda * (self.cruise_altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
+        self.temperature = ISA_temperature + Lambda * self.cruise_altitude
+        self.rho = self.pressure /(self.temperature*R)
         pass
 
     def cruise(self,x):
-     y = (self.n_p * (self.rho/self.rho0) ** 0.75 * ((self.CD0_clean * 0.5 * self.rho
+        self.ISA()
+        y = (self.n_p * (self.rho/ISA_density) ** 0.75 * ((self.CD0_clean * 0.5 * self.rho
                                                       * self.cruise_speed ** 3) / (x) +
                                                      x / (np.pi * self.AR * self.Oswald_clean *
                                                           0.5 * self.rho * self.cruise_speed)))
-     return y
+        return y
