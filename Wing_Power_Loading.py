@@ -122,7 +122,7 @@ class PowerLoading:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
             plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="climb gradient constraint")
             plt.plot(x_list, self.climbrate(x_list), linestyle="solid", color="purple", label="climb rate constraint")
-
+            plt.plot(x_list, self.takeoff(x_list), linestyle="solid", color="orange", label="take-off constraint")
         plt.ylim((0,0.4))
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
