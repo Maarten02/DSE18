@@ -88,3 +88,18 @@ class PowerLoading:
                                                      x / (np.pi * self.AR * self.Oswald_clean *
                                                           0.5 * self.rho * self.cruise_speed)))
         return y
+
+    def plot_power(self, landing, cruise, x):
+        x_list = np.arange(50, x, 50)
+        plt.figure(1)
+        plt.grid()
+
+        if landing:
+            plt.plot([self.landing()], [0.4], linestyle="solid", color="black", label="Landing constraint")
+        if cruise:
+            plt.plot(x_list, [self.cruise(el) for el in x_list], linestyle="solid", color="blue", label="Cruise speed constraint")
+        
+        plt.xlabel("Wing loading (W/S) [N/m^2]")
+        plt.ylabel("Power loading (W/P) [N/W]")
+        plt.show()
+        plt.close(1)
