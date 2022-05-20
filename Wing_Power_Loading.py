@@ -89,9 +89,11 @@ class PowerLoading:
 
     def takeoff(self, W_over_S):
         sigma = self.ISA(self.runway_elevation)[2] / 1.225
+        print('sigma = %.2f' % sigma)
         CL_TO = self.CLmax_TO / (1.1 * 1.1)
+        print('take off lift coefficient = %.2f' % CL_TO)
         TOP = 570
-        W_over_P = W_over_S / (sigma * CL_TO * TOP)
+        W_over_P = (sigma * CL_TO * TOP) / W_over_S
         return W_over_P
 
 
@@ -117,7 +119,7 @@ class PowerLoading:
         plt.figure(1)
         plt.grid()
         if landing:
-            plt.vlines(self.landing(),0,0.4)
+            plt.vlines(self.landing(),0,0.4, label="landing/stall constraint")
         if cruise:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
             plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="climb gradient constraint")
@@ -126,6 +128,7 @@ class PowerLoading:
         plt.ylim((0,0.4))
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
+        plt.legend()
         plt.show()
         plt.close(1)
 
