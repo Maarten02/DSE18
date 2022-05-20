@@ -59,7 +59,7 @@ class PowerLoading:
         self.CD0_clean = 0.0280
         self.CD0_TO = 0.0380
         self.CD0_land = 0.0730
-        self.landing_fraction = 0.9
+        self.landing_fraction = 0.95
         self.ground_distance = 1500 #[m]
         self.n_p = 0.85
         self.cruise_altitude = 3050
@@ -69,9 +69,9 @@ class PowerLoading:
         self.pressure = 101325
         self.temperature = 288.15
         self.c = 5
-        self.CL_CD_TO = self.CD0_TO + (self.CLmax_TO**2/(self.Oswald_TO*self.AR*np.pi))
-        self.CL_CD_cruise = self.CD0_clean + (self.CLmax_clean**2/(self.Oswald_clean*self.AR*np.pi))
-        self.CL_CD_L = self.CD0_land + (self.CLmax_land**2/(self.Oswald_land*self.AR*np.pi))
+        self.CL_CD_TO = self.CLmax_TO/(self.CD0_TO + (self.CLmax_TO**2/(self.Oswald_TO*self.AR*np.pi)))
+        self.CL_CD_cruise = self.CLmax_clean/(self.CD0_clean + (self.CLmax_clean**2/(self.Oswald_clean*self.AR*np.pi)))
+        self.CL_CD_L = self.CLmax_land/(self.CD0_land + (self.CLmax_land**2/(self.Oswald_land*self.AR*np.pi)))
         self.c_V = 0.083
         self.runway_elevation = 2500
 
@@ -122,10 +122,11 @@ class PowerLoading:
             plt.vlines(self.landing(),0,0.4, label="landing/stall constraint")
         if cruise:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
-            plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="climb gradient constraint")
-            plt.plot(x_list, self.climbrate(x_list), linestyle="solid", color="purple", label="climb rate constraint")
+            plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="Climb gradient constraint")
+            plt.plot(x_list, self.climbrate(x_list), linestyle="solid", color="purple", label="Climb rate constraint")
             plt.plot(x_list, self.takeoff(x_list), linestyle="solid", color="orange", label="take-off constraint")
         plt.ylim((0,0.4))
+        plt.legend()
         plt.xlabel("Wing loading (W/S) [N/m^2]")
         plt.ylabel("Power loading (W/P) [N/W]")
         plt.legend()
