@@ -91,8 +91,8 @@ class PowerLoading:
         sigma = self.ISA(self.runway_elevation)[2] / 1.225
         CL_TO = self.CLmax_TO / (1.1 * 1.1)
         TOP = 570
-        T_over_W = W_over_S / (sigma * CL_TO * TOP)
-        return T_over_W
+        W_over_P = W_over_S / (sigma * CL_TO * TOP)
+        return W_over_P
 
 
     def cruise(self,x):
