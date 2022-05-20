@@ -48,7 +48,9 @@ gravity =9.81
 
 class PowerLoading:
     def __init__(self, MTOW):
-        self.stall_speed = 41.7 #[m/s]
+        self.clean_stall_speed = 46.2 # [m/s]
+        self.ff_stall_speed = 40.4 #[m/s]
+
         self.CLmax_clean = 1.5
         self.CLmax_TO = 2.0
         self.CLmax_land = 2.4
@@ -56,15 +58,15 @@ class PowerLoading:
         self.Oswald_clean = 0.78
         self.Oswald_TO = 0.83
         self.Oswald_land = 0.88
-        self.CD0_clean = 0.0280
+        self.CD0_clean = 0.02 # between prop and jet (ADSEE-I, lec 3 slide 15)
         self.CD0_TO = 0.0380
         self.CD0_land = 0.0730
         self.landing_fraction = 0.95
         self.ground_distance = 1500 #[m]
         self.n_p = 0.85
-        self.cruise_altitude = 3050
+        self.cruise_altitude = 10000 # m
         self.AR = 9
-        self.cruise_speed = 500*1000/(3600)
+        self.cruise_speed = 500 / 3.6
         self.rho = 1.225
         self.pressure = 101325
         self.temperature = 288.15
@@ -87,6 +89,10 @@ class PowerLoading:
         x = (self.CLmax_land * ISA_density * (self.ground_distance / 0.5915)) / (2 * self.landing_fraction)
         return x
 
+    def clean_stall(self):
+        return 0.5 * ISA_density * self.clean_stall_speed ** 2 * self.CLmax_clean
+
+
     def takeoff(self, W_over_S):
         sigma = self.ISA(self.runway_elevation)[2] / 1.225
         print('sigma = %.2f' % sigma)
@@ -99,19 +105,21 @@ class PowerLoading:
 
     def cruise(self,x):
         pressure,temperature,rho = self.ISA(self.cruise_altitude)
-        y = (self.n_p * (rho/ISA_density) ** (0.75) * ((self.CD0_clean * 0.5 * rho
-                                                      * self.cruise_speed ** 3) / (x) +
-                                                     x / (np.pi * self.AR * self.Oswald_clean *
+        y = (9/8) *  (self.n_p * (rho/ISA_density) ** (0.75) * ((self.CD0_clean * 0.5 * rho
+                                                      * self.cruise_speed ** 3) / (0.8*x) +
+                                                     0.8*x / (np.pi * self.AR * self.Oswald_clean *
                                                           0.5 * rho * self.cruise_speed))**-1)
+        print(rho/ISA_density)
         return y
 
     def climbrate(self,x):
+
         y = (self.n_p / (self.c + np.sqrt(x)*np.sqrt(2/ISA_density)/
                         (1.345*(self.AR*self.Oswald_TO)**(3/4)/(self.CD0_TO**(1/4)))))
         return y
 
     def climbgradient(self,x):
-        y = self.n_p/(np.sqrt(x)*(self.c_V+self.CL_CD_TO)*np.sqrt(2/(ISA_density*(self.CLmax_TO-0.2))))
+        y = self.n_p/(np.sqrt(x)*(self.c_V+self.CL_CD_TO ** -1)*np.sqrt(2/(ISA_density*(self.CLmax_TO-0.2))))
         return y
 
     def plot_power(self, landing, cruise):
@@ -120,6 +128,7 @@ class PowerLoading:
         plt.grid()
         if landing:
             plt.vlines(self.landing(),0,0.4, label="landing/stall constraint")
+            plt.vlines(self.clean_stall(),0,0.4, label="clean stall constraint")
         if cruise:
             plt.plot(x_list, self.cruise(x_list), linestyle="solid", color="blue", label="Cruise speed constraint")
             plt.plot(x_list, self.climbgradient(x_list), linestyle="solid", color="red", label="Climb gradient constraint")
