@@ -46,7 +46,7 @@ ISA_pressure = 101325
 ISA_temperature = 288.15
 gravity =9.81
 
-class PowerLoading:
+class WingAndPowerSizing:
     def __init__(self, MTOW):
         self.clean_stall_speed = 46.2 # [m/s]
         self.ff_stall_speed = 40.4 #[m/s]
@@ -77,6 +77,11 @@ class PowerLoading:
         self.c_V = 0.083
         self.runway_elevation = 2500
 
+        self.W_S = None
+        self.W_P = None
+        self.W_S = None
+        self.W_P = None
+
 
     def ISA(self,altitude):
         pressure = ISA_pressure * (1. + (Lambda * (altitude)) / ISA_temperature) ** (-gravity / (Lambda * R))
@@ -95,9 +100,9 @@ class PowerLoading:
 
     def takeoff(self, W_over_S):
         sigma = self.ISA(self.runway_elevation)[2] / 1.225
-        print('sigma = %.2f' % sigma)
+        #print('sigma = %.2f' % sigma)
         CL_TO = self.CLmax_TO / (1.1 * 1.1)
-        print('take off lift coefficient = %.2f' % CL_TO)
+        #print('take off lift coefficient = %.2f' % CL_TO)
         TOP = 570
         W_over_P = (sigma * CL_TO * TOP) / W_over_S
         return W_over_P
@@ -109,7 +114,7 @@ class PowerLoading:
                                                       * self.cruise_speed ** 3) / (0.8*x) +
                                                      0.8*x / (np.pi * self.AR * self.Oswald_clean *
                                                           0.5 * rho * self.cruise_speed))**-1)
-        print(rho/ISA_density)
+        #print(rho/ISA_density)
         return y
 
     def climbrate(self,x):
@@ -142,5 +147,19 @@ class PowerLoading:
         plt.show()
         plt.close(1)
 
-Aircraft  = PowerLoading(3500)
-Aircraft.plot_power(landing= True,cruise = True)
+    def find_DP(self):
+        self.W_S = self.clean_stall()
+        self.W_P = self.cruise(self.W_S)
+        self.S = self.MTOW / self.W_S
+        self.P = self.MTOW / self.W_P
+
+    def print_ac_params(self):
+        self.find_DP()
+        print("Wing Loading = %.2f" % self.W_S, " N/m^2")
+        print("Power Loading = %.3f" % self.W_P, " N/w")
+        print("Wing Area = %.2f" % self.S, " m^2")
+        print("Total Power = %.2f" % (self.P / 1000), " kW")
+
+Aircraft  = WingAndPowerSizing(5500 * 9.81)
+Aircraft.plot_power(landing=True, cruise=True)
+Aircraft.print_ac_params()
