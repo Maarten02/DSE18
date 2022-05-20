@@ -214,15 +214,6 @@ class Aircraft:
          + self.w_flightcontrols + self.w_installedEngine + self.w_hydraulics)
         return oew
 
-    def classiter(self):
-        self.class1()
-        OEW1 = self.w_oew
-        self.class2()
-        OEW2 = self.w_oew
-        if np.abs(OEW2 - OEW1)/OEW2>=0.07:
-            self.classiter()
-        else:
-            pass
 
     def mainsizing(self):
         self.fuel_volume = self.w_fuel / 71
@@ -238,6 +229,17 @@ class Aircraft:
             self.w_fuel = self.w_fuel*self.change
             self.mainsizing()
         pass
+
+    def classiter(self):
+        self.class1()
+        OEW1 = self.w_oew
+        self.class2()
+        OEW2 = self.w_oew
+        self.mainsizing()
+        if np.abs(OEW2 - OEW1)/OEW2>=0.07:
+            self.classiter()
+        else:
+            pass
 
     def landinggearsizing(self):
 
