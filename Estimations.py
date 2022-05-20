@@ -100,6 +100,9 @@ class Aircraft:
         self.shaft_power = 0
         self.fuel_volume = 0
         self.change = 0
+        self.W_S = 0
+        self.W_P = 0
+
 
 
     def class1(self):
@@ -227,12 +230,13 @@ class Aircraft:
         self.x_fuselage_cg = self.length_fus[-1]/2
         self.x_fuel_cg=self.length_fus[-1] - 0.5*self.fuel_volume/((self.diameter_fus-0.2)**2 * np.pi/4)
         self.change =  (self.length_fus[-1]/self.length_fus[-2])*self.subsystem_weightage['fuselage']+(1-self.subsystem_weightage['fuselage'])
+        self.m_fuselage.append(self.change*self.m_fuselage[-1])
         self.m_wing.append(self.m_wing[-1]*self.change)
         if (self.oew()-self.w_oew)/self.w_oew >= 0.07:
+            self.change = self.oew()/self.w_oew
+            self.w_oew = self.oew()
+            self.w_fuel = self.w_fuel*self.change
             self.mainsizing()
-        pass
-
-    def wingsizing(self):
         pass
 
     def landinggearsizing(self):
